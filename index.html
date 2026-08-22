@@ -25,6 +25,7 @@
             margin: 0;
             padding: 14px;
             padding-bottom: 85px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
@@ -99,7 +100,6 @@
             border-radius: 22px;
             padding: 22px;
             margin-bottom: 16px;
-            position: relative;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
         }
 
@@ -117,7 +117,6 @@
             font-weight: 900;
             color: #ffffff;
             margin-bottom: 10px;
-            letter-spacing: -0.5px;
         }
 
         .wallet-meta-row {
@@ -411,7 +410,7 @@
             </div>
 
             <div class="action-grid">
-                <button class="btn-custom primary-neon" onclick="switchTab('earn')">⚡ Earn Naira</button>
+                <button class="btn-custom primary-neon" onclick="switchTab('earn', event)">⚡ Earn Naira</button>
                 <button class="btn-custom" onclick="requestWithdrawal()">💳 Cashout</button>
             </div>
 
@@ -535,23 +534,23 @@
 
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <button class="nav-button active" onclick="switchTab('home')">
+        <button class="nav-button active" onclick="switchTab('home', event)">
             <span>🏠</span>
             <span>Home</span>
         </button>
-        <button class="nav-button" onclick="switchTab('earn')">
+        <button class="nav-button" onclick="switchTab('earn', event)">
             <span>💼</span>
             <span>Earn</span>
         </button>
-        <button class="nav-button" onclick="switchTab('play')">
+        <button class="nav-button" onclick="switchTab('play', event)">
             <span>🎮</span>
             <span>Bonus</span>
         </button>
-        <button class="nav-button" onclick="switchTab('refer')">
+        <button class="nav-button" onclick="switchTab('refer', event)">
             <span>👥</span>
             <span>Invite</span>
         </button>
-        <button class="nav-button" onclick="switchTab('account')">
+        <button class="nav-button" onclick="switchTab('account', event)">
             <span>⚙️</span>
             <span>Profile</span>
         </button>
@@ -583,17 +582,19 @@
             document.getElementById('balance-display').innerText = formattedBalance;
             document.getElementById('tasks-stat').innerText = `${completedTasksCount}/3`;
             
-            // Update Account Page Stats
             document.getElementById('acc-lifetime-earned').innerText = formattedLifetime;
             document.getElementById('acc-tasks-done').innerText = completedTasksCount;
         }
 
-        function switchTab(tabName) {
+        function switchTab(tabName, evt) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
 
             document.getElementById('page-' + tabName).classList.add('active');
-            event.currentTarget.classList.add('active');
+            
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            }
         }
 
         function claimDailyCheckin() {
@@ -607,11 +608,9 @@
             btn.style.color = '#94a3b8';
             document.getElementById('checkin-sub').innerText = 'Checked in successfully! +₦100';
             updateUI();
-            tg.hapticFeedback.notificationOccurred('success');
+            if (tg.hapticFeedback) tg.hapticFeedback.notificationOccurred('success');
         }
 
         function completeTask(taskId, reward) {
             balance += reward;
-            lifetimeEarned += reward;
-            completedTasksCount++;
-            let btn = documen
+            li
