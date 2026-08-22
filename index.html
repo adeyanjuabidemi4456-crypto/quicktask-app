@@ -7,24 +7,24 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0b0e14;
-            --card-bg: #141b26;
-            --card-border: #1e293b;
-            --text-color: #ffffff;
-            --text-secondary: #8a96a3;
-            --accent-purple: #8b5cf6;
-            --accent-purple-glow: rgba(139, 92, 246, 0.3);
-            --success-color: #2ecc71;
-            --nav-bg: #0f172a;
+            --bg-base: #07090e;
+            --surface-color: #121824;
+            --surface-border: #1f293d;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --neon-cyan: #06b6d4;
+            --neon-cyan-glow: rgba(6, 182, 212, 0.25);
+            --success-green: #10b981;
+            --nav-bg: #0d121c;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
             margin: 0;
-            padding: 12px;
-            padding-bottom: 80px; /* Space for bottom nav */
+            padding: 14px;
+            padding-bottom: 85px;
         }
 
         .container {
@@ -32,391 +32,528 @@
             margin: 0 auto;
         }
 
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
         /* Top Header */
-        .header {
+        .app-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            padding: 4px 8px;
+            margin-bottom: 18px;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            padding: 10px 14px;
+            border-radius: 16px;
         }
 
-        .user-profile {
+        .profile-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .avatar {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, #a855f7, #6366f1);
-            border-radius: 50%;
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 800;
             color: white;
         }
 
-        .user-info h3 {
+        .user-meta h3 {
             margin: 0 0 2px 0;
-            font-size: 16px;
-        }
-
-        .user-info p {
-            margin: 0;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .online-badge {
-            background-color: rgba(46, 204, 113, 0.15);
-            color: var(--success-color);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .online-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background-color: var(--success-color);
-            border-radius: 50%;
-        }
-
-        /* Balance Card */
-        .balance-card {
-            background: linear-gradient(145deg, #161f30, #101722);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 16px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .balance-title {
-            color: var(--text-secondary);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0 0 6px 0;
+            font-size: 15px;
             font-weight: 700;
         }
 
-        .balance-amount {
-            font-size: 36px;
+        .user-meta p {
+            margin: 0;
+            font-size: 11px;
+            color: var(--text-sub);
+        }
+
+        .status-pill {
+            background-color: rgba(16, 185, 129, 0.12);
+            color: var(--success-green);
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Wallet Showcase Card */
+        .wallet-card {
+            background: linear-gradient(145deg, #0f172a, #090d16);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 22px;
+            padding: 22px;
+            margin-bottom: 16px;
+            position: relative;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .wallet-label {
+            color: var(--text-sub);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .wallet-balance {
+            font-size: 38px;
             font-weight: 900;
             color: #ffffff;
-            margin: 0 0 8px 0;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
         }
 
-        .crypto-convert {
+        .wallet-meta-row {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            font-size: 13px;
-        }
-
-        .convert-text {
-            color: var(--success-color);
-            font-weight: 600;
-            display: flex;
             align-items: center;
-            gap: 4px;
-        }
-
-        .earn-more-link {
-            color: var(--text-secondary);
-            text-decoration: none;
             font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 2px;
+            border-top: 1px solid var(--surface-border);
+            padding-top: 10px;
         }
 
-        .gem-icon {
-            position: absolute;
-            right: -10px;
-            bottom: -15px;
-            font-size: 90px;
-            opacity: 0.15;
-            pointer-events: none;
+        .fiat-note {
+            color: var(--success-green);
+            font-weight: 600;
         }
 
-        /* Action Buttons Row */
-        .action-row {
+        /* Action Grid */
+        .action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 16px;
         }
 
-        .main-btn {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
+        .btn-custom {
+            background-color: var(--surface-color);
+            border: 1px solid var(--surface-border);
             color: white;
             padding: 14px;
             border-radius: 14px;
-            font-weight: bold;
-            font-size: 15px;
+            font-weight: 700;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.2s;
         }
 
-        .main-btn.primary {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            border-color: #8b5cf6;
-            box-shadow: 0 4px 15px var(--accent-purple-glow);
+        .btn-custom.primary-neon {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 4px 15px var(--neon-cyan-glow);
         }
 
-        /* Stats Grid */
-        .stats-grid {
+        /* Metrics Grid */
+        .metrics-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-bottom: 16px;
         }
 
-        .stat-box {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
+        .metric-box {
+            background-color: var(--surface-color);
+            border: 1px solid var(--surface-border);
             border-radius: 14px;
-            padding: 14px 10px;
+            padding: 12px 8px;
             text-align: center;
         }
 
-        .stat-box svg, .stat-box span.icon {
-            font-size: 18px;
+        .metric-box .m-icon {
+            font-size: 16px;
             margin-bottom: 4px;
             display: block;
-            color: var(--accent-purple);
         }
 
-        .stat-box .stat-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-bottom: 2px;
+        .metric-box .m-label {
+            font-size: 10px;
+            color: var(--text-sub);
+            text-transform: uppercase;
         }
 
-        .stat-box .stat-value {
-            font-size: 15px;
+        .metric-box .m-val {
+            font-size: 14px;
             font-weight: 800;
+            margin-top: 2px;
         }
 
-        /* Daily Check-in Card */
-        .checkin-card {
-            background: linear-gradient(135deg, #2e1065, #1e1b4b);
-            border: 1px solid #7c3aed;
+        /* Daily Rewards Box */
+        .rewards-panel {
+            background: linear-gradient(135deg, #132238, #0b1322);
+            border: 1px solid #1e3a8a;
             border-radius: 20px;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2);
         }
 
-        .checkin-header {
+        .rewards-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
 
-        .checkin-title h4 {
+        .rewards-title h4 {
             margin: 0 0 2px 0;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 15px;
         }
 
-        .checkin-title p {
+        .rewards-title p {
             margin: 0;
             font-size: 11px;
-            color: #c4b5fd;
+            color: #93c5fd;
         }
 
-        .checkin-btn {
-            background-color: white;
-            color: #1e1b4b;
+        .claim-btn {
+            background-color: var(--neon-cyan);
+            color: #07090e;
             border: none;
-            padding: 8px 18px;
-            border-radius: 12px;
+            padding: 8px 16px;
+            border-radius: 10px;
             font-weight: 800;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
         }
 
-        .streak-days {
+        .mini-streak-row {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
+            gap: 5px;
         }
 
-        .streak-day {
+        .streak-pill {
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
             padding: 6px 2px;
             text-align: center;
         }
 
-        .streak-day.active {
-            background: #7c3aed;
-            border-color: #a78bfa;
+        .streak-pill.active {
+            background: #0891b2;
+            border-color: var(--neon-cyan);
         }
 
-        .streak-day .d-label {
+        .streak-pill span {
+            display: block;
             font-size: 9px;
             color: #cbd5e1;
-            display: block;
         }
 
-        .streak-day .d-val {
-            font-size: 11px;
-            font-weight: bold;
+        .streak-pill strong {
             display: block;
+            font-size: 10px;
+            color: white;
         }
 
-        /* Bottom Navigation Bar */
+        /* Section Title & Tasks */
+        .section-heading {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+        }
+
+        .task-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-details h4 {
+            margin: 0 0 3px 0;
+            font-size: 14px;
+        }
+
+        .task-details p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--success-green);
+            font-weight: 700;
+        }
+
+        .task-exec-btn {
+            background: var(--neon-cyan);
+            color: #07090e;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .task-exec-btn.done {
+            background: #1e293b;
+            color: var(--text-sub);
+            cursor: default;
+        }
+
+        /* Account Stats Styles */
+        .account-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .account-row-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+        }
+
+        .account-row-item:last-child {
+            border-bottom: none;
+        }
+
+        .account-row-item span:first-child {
+            color: var(--text-sub);
+        }
+
+        .account-row-item span:last-child {
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Bottom Nav */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background-color: var(--nav-bg);
-            border-top: 1px solid var(--card-border);
+            border-top: 1px solid var(--surface-border);
             display: flex;
             justify-content: space-around;
             padding: 10px 0;
             z-index: 1000;
         }
 
-        .nav-item {
+        .nav-button {
             background: none;
             border: none;
-            color: var(--text-secondary);
+            color: var(--text-sub);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             font-size: 10px;
             cursor: pointer;
             flex: 1;
         }
 
-        .nav-item.active {
-            color: var(--accent-purple);
+        .nav-button.active {
+            color: var(--neon-cyan);
         }
 
-        .nav-item svg {
-            font-size: 20px;
+        .nav-button span:first-child {
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Top Header -->
-        <div class="header">
-            <div class="user-profile">
-                <div class="avatar" id="user-avatar">D</div>
-                <div class="user-info">
+        <!-- Top App Header -->
+        <div class="app-header">
+            <div class="profile-area">
+                <div class="user-avatar" id="user-avatar">D</div>
+                <div class="user-meta">
                     <h3 id="user-name">Daniel</h3>
-                    <p id="user-handle">@Daniel</p>
+                    <p id="user-handle">Quick Task Hub</p>
                 </div>
             </div>
-            <div class="online-badge">Online</div>
+            <div class="status-pill">Active</div>
         </div>
 
-        <!-- Balance Card -->
-        <div class="balance-card">
-            <div class="balance-title">Your Balance</div>
-            <div class="balance-amount" id="balance-display">₦0.00</div>
-            <div class="crypto-convert">
-                <span class="convert-text" id="usdt-convert">🟢 ≈ $0.00 USDT</span>
-                <a href="#" class="earn-more-link" onclick="triggerEarnTab()">Earn more ➔</a>
-            </div>
-            <div class="gem-icon">💎</div>
-        </div>
-
-        <!-- Action Row -->
-        <div class="action-row">
-            <button class="main-btn primary" onclick="triggerEarnTab()">⚡ Earn</button>
-            <button class="main-btn" onclick="requestWithdrawal()" id="withdraw-btn">💳 Withdraw</button>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-box">
-                <span class="icon">📋</span>
-                <div class="stat-label">Tasks</div>
-                <div class="stat-value" id="tasks-stat">0/3</div>
-            </div>
-            <div class="stat-box">
-                <span class="icon">🔥</span>
-                <div class="stat-label">Streak</div>
-                <div class="stat-value">1</div>
-            </div>
-            <div class="stat-box">
-                <span class="icon">👥</span>
-                <div class="stat-label">Refs</div>
-                <div class="stat-value">0</div>
-            </div>
-        </div>
-
-        <!-- Daily Check-in Card -->
-        <div class="checkin-card">
-            <div class="checkin-header">
-                <div class="checkin-title">
-                    <h4>🔥 Daily Check-in</h4>
-                    <p id="checkin-subtitle">Day 1 reward: +₦100</p>
+        <!-- HOME PAGE -->
+        <div id="page-home" class="page active">
+            <div class="wallet-card">
+                <div class="wallet-label">Available Earnings</div>
+                <div class="wallet-balance" id="balance-display">₦0.00</div>
+                <div class="wallet-meta-row">
+                    <span class="fiat-note">Payout Ready in Naira (₦)</span>
+                    <span style="color: var(--text-sub); font-size: 11px;">Instant Settlement</span>
                 </div>
-                <button class="checkin-btn" id="checkin-action-btn" onclick="claimDailyCheckin()">Check In</button>
             </div>
-            <div class="streak-days">
-                <div class="streak-day active" id="day-1"><span class="d-label">D1</span><span class="d-val">100</span></div>
-                <div class="streak-day" id="day-2"><span class="d-label">D2</span><span class="d-val">150</span></div>
-                <div class="streak-day" id="day-3"><span class="d-label">D3</span><span class="d-val">200</span></div>
-                <div class="streak-day" id="day-4"><span class="d-label">D4</span><span class="d-val">300</span></div>
-                <div class="streak-day" id="day-5"><span class="d-label">D5</span><span class="d-val">400</span></div>
-                <div class="streak-day" id="day-6"><span class="d-label">D6</span><span class="d-val">500</span></div>
-                <div class="streak-day" id="day-7"><span class="d-label">D7</span><span class="d-val">1000</span></div>
+
+            <div class="action-grid">
+                <button class="btn-custom primary-neon" onclick="switchTab('earn')">⚡ Earn Naira</button>
+                <button class="btn-custom" onclick="requestWithdrawal()">💳 Cashout</button>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <span class="m-icon">🎯</span>
+                    <div class="m-label">Tasks Done</div>
+                    <div class="m-val" id="tasks-stat">0/3</div>
+                </div>
+                <div class="metric-box">
+                    <span class="m-icon">⚡</span>
+                    <div class="m-label">Streak</div>
+                    <div class="m-val">Day 1</div>
+                </div>
+                <div class="metric-box">
+                    <span class="m-icon">🛡️</span>
+                    <div class="m-label">Status</div>
+                    <div class="m-val" style="color: var(--success-green);">Secure</div>
+                </div>
+            </div>
+
+            <div class="rewards-panel">
+                <div class="rewards-header">
+                    <div class="rewards-title">
+                        <h4>Daily Check-in</h4>
+                        <p id="checkin-sub">Claim today's bonus: +₦100</p>
+                    </div>
+                    <button class="claim-btn" id="checkin-action-btn" onclick="claimDailyCheckin()">Claim</button>
+                </div>
+                <div class="mini-streak-row">
+                    <div class="streak-pill active"><span>D1</span><strong>100</strong></div>
+                    <div class="streak-pill"><span>D2</span><strong>150</strong></div>
+                    <div class="streak-pill"><span>D3</span><strong>200</strong></div>
+                    <div class="streak-pill"><span>D4</span><strong>300</strong></div>
+                    <div class="streak-pill"><span>D5</span><strong>400</strong></div>
+                    <div class="streak-pill"><span>D6</span><strong>500</strong></div>
+                    <div class="streak-pill"><span>D7</span><strong>1k</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EARN PAGE -->
+        <div id="page-earn" class="page">
+            <div class="section-heading">Task Opportunities</div>
+            <div class="task-stack">
+                <div class="task-item-card">
+                    <div class="task-details">
+                        <h4>Join Telegram Announcement</h4>
+                        <p>+₦250 Naira</p>
+                    </div>
+                    <button class="task-exec-btn" id="task-1-btn" onclick="completeTask(1, 250)">Start</button>
+                </div>
+                <div class="task-item-card">
+                    <div class="task-details">
+                        <h4>Invite a Peer</h4>
+                        <p>+₦500 Naira</p>
+                    </div>
+                    <button class="task-exec-btn" id="task-2-btn" onclick="completeTask(2, 500)">Invite</button>
+                </div>
+                <div class="task-item-card">
+                    <div class="task-details">
+                        <h4>Review Platform Feature</h4>
+                        <p>+₦150 Naira</p>
+                    </div>
+                    <button class="task-exec-btn" id="task-3-btn" onclick="completeTask(3, 150)">Complete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PLAY/BONUS PAGE -->
+        <div id="page-play" class="page">
+            <div class="section-heading">Bonus Zone</div>
+            <p style="color: var(--text-sub); text-align: center; margin-top: 40px;">Mini-games unlock soon.</p>
+        </div>
+        
+        <!-- REFER PAGE -->
+        <div id="page-refer" class="page">
+            <div class="section-heading">Referral Program</div>
+            <div class="account-card" style="text-align: center; padding: 20px;">
+                <p style="color: var(--text-sub); font-size: 13px; margin-bottom: 15px;">Share your link and earn ₦500 per invite!</p>
+                <button class="btn-custom primary-neon" style="width: 100%; justify-content: center;" onclick="alert('Referral link copied to clipboard!')">🔗 Copy Invite Link</button>
+            </div>
+        </div>
+
+        <!-- ACCOUNT PAGE WITH STATS -->
+        <div id="page-account" class="page">
+            <div class="section-heading">Profile & App Overview</div>
+            
+            <div class="account-card">
+                <div class="account-row-item">
+                    <span>Account Name</span>
+                    <span id="acc-name">Daniel</span>
+                </div>
+                <div class="account-row-item">
+                    <span>Telegram ID</span>
+                    <span id="acc-id">8782331655</span>
+                </div>
+                <div class="account-row-item">
+                    <span>Privacy Status</span>
+                    <span style="color: var(--success-green);">Phone Hidden</span>
+                </div>
+            </div>
+
+            <div class="section-heading" style="margin-top: 16px;">App Analytics & Earnings</div>
+            <div class="account-card">
+                <div class="account-row-item">
+                    <span>Total App Users</span>
+                    <span id="acc-total-users">1,248 Active</span>
+                </div>
+                <div class="account-row-item">
+                    <span>Total Lifetime Earned</span>
+                    <span id="acc-lifetime-earned">₦0.00</span>
+                </div>
+                <div class="account-row-item">
+                    <span>Tasks Completed</span>
+                    <span id="acc-tasks-done">0</span>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('home')">
+        <button class="nav-button active" onclick="switchTab('home')">
             <span>🏠</span>
             <span>Home</span>
         </button>
-        <button class="nav-item" onclick="switchTab('earn')">
-            <span>📋</span>
+        <button class="nav-button" onclick="switchTab('earn')">
+            <span>💼</span>
             <span>Earn</span>
         </button>
-        <button class="nav-item" onclick="switchTab('play')">
+        <button class="nav-button" onclick="switchTab('play')">
             <span>🎮</span>
-            <span>Play</span>
+            <span>Bonus</span>
         </button>
-        <button class="nav-item" onclick="switchTab('refer')">
-            <span>🎁</span>
-            <span>Refer</span>
+        <button class="nav-button" onclick="switchTab('refer')">
+            <span>👥</span>
+            <span>Invite</span>
         </button>
-        <button class="nav-item" onclick="switchTab('account')">
-            <span>👤</span>
-            <span>Account</span>
+        <button class="nav-button" onclick="switchTab('account')">
+            <span>⚙️</span>
+            <span>Profile</span>
         </button>
     </div>
 
@@ -426,70 +563,55 @@
 
         let user = tg.initDataUnsafe?.user;
         let balance = 0.00;
+        let lifetimeEarned = 0.00;
         let completedTasksCount = 0;
         const minPayout = 5000.00;
         let telegramId = user ? user.id : 8782331655;
 
         if (user) {
-            document.getElementById('user-name').innerText = user.first_name || "Daniel";
-            document.getElementById('user-handle').innerText = "@" + (user.username || user.first_name || "Daniel");
-            document.getElementById('user-avatar').innerText = (user.first_name ? user.first_name[0].toUpperCase() : "D");
+            let userName = user.first_name || "Daniel";
+            document.getElementById('user-name').innerText = userName;
+            document.getElementById('user-avatar').innerText = userName[0].toUpperCase();
+            document.getElementById('acc-name').innerText = userName;
+            document.getElementById('acc-id').innerText = telegramId;
         }
 
         function updateUI() {
-            document.getElementById('balance-display').innerText = '₦' + balance.toLocaleString('en-NG', {minimumFractionDigits: 2});
-            let estimatedUSDT = (balance / 1000).toFixed(4); // Example exchange rate calculation
-            document.getElementById('usdt-convert').innerText = `🟢 ≈ $${estimatedUSDT} USDT`;
+            let formattedBalance = '₦' + balance.toLocaleString('en-NG', {minimumFractionDigits: 2});
+            let formattedLifetime = '₦' + lifetimeEarned.toLocaleString('en-NG', {minimumFractionDigits: 2});
+
+            document.getElementById('balance-display').innerText = formattedBalance;
             document.getElementById('tasks-stat').innerText = `${completedTasksCount}/3`;
+            
+            // Update Account Page Stats
+            document.getElementById('acc-lifetime-earned').innerText = formattedLifetime;
+            document.getElementById('acc-tasks-done').innerText = completedTasksCount;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+
+            document.getElementById('page-' + tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
         function claimDailyCheckin() {
             balance += 100;
+            lifetimeEarned += 100;
             completedTasksCount++;
             let btn = document.getElementById('checkin-action-btn');
             btn.innerText = 'Claimed';
-            btn.setAttribute('disabled', 'true');
-            btn.style.backgroundColor = '#4e5d6c';
-            btn.style.color = '#fff';
-            document.getElementById('checkin-subtitle').innerText = 'Checked in successfully! +₦100';
+            btn.disabled = true;
+            btn.style.background = '#334155';
+            btn.style.color = '#94a3b8';
+            document.getElementById('checkin-sub').innerText = 'Checked in successfully! +₦100';
             updateUI();
             tg.hapticFeedback.notificationOccurred('success');
         }
 
-        function triggerEarnTab() {
-            alert("Redirecting to active Quick Tasks list...");
-        }
-
-        function requestWithdrawal() {
-            if (balance < minPayout) {
-                alert(`Minimum payout is ₦5,000. You need ₦${(minPayout - balance).toLocaleString()} more.`);
-                return;
-            }
-            
-            tg.showConfirm("Do you want to request your payout of ₦" + balance.toLocaleString() + "?", (confirmed) => {
-                if (confirmed) {
-                    tg.sendData(JSON.stringify({
-                        action: "withdraw",
-                        amount: balance,
-                        user_id: telegramId
-                    }));
-                    alert("Payout request successfully sent to admin!");
-                    balance = 0;
-                    updateUI();
-                }
-            });
-        }
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            if(tabName !== 'home') {
-                alert("Opening " + tabName.toUpperCase() + " section...");
-            }
-        }
-
-        updateUI();
-    </script>
-</body>
-    </html>
-    
+        function completeTask(taskId, reward) {
+            balance += reward;
+            lifetimeEarned += reward;
+            completedTasksCount++;
+            let btn = documen
