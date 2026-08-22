@@ -213,14 +213,14 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // User Data Initialization
         let user = tg.initDataUnsafe?.user;
         let balance = 0.00;
         const minPayout = 5000.00;
+        let telegramId = user ? user.id : 8782331655;
 
         if (user) {
             document.getElementById('user-name').innerText = user.first_name || "User";
-            document.getElementById('user-id').innerText = "ID: " + (user.id || "8782331655");
+            document.getElementById('user-id').innerText = "ID: " + telegramId;
             document.getElementById('user-avatar').innerText = (user.first_name ? user.first_name[0].toUpperCase() : "D");
         } else {
             document.getElementById('user-name').innerText = "Daniel";
@@ -262,9 +262,17 @@
 
         function requestWithdrawal() {
             if (balance < minPayout) return;
-            tg.showConfirm("Do you want to request your payout of ₦" + balance.toLocaleString() + " to your saved wallet?", (confirmed) => {
+            
+            tg.showConfirm("Do you want to request your payout of ₦" + balance.toLocaleString() + "?", (confirmed) => {
                 if (confirmed) {
-                    alert("Payout request submitted successfully!");
+                    // Send data back to Telegram bot / backend
+                    tg.sendData(JSON.stringify({
+                        action: "withdraw",
+                        amount: balance,
+                        user_id: telegramId
+                    }));
+                    
+                    alert("Payout request successfully sent to admin!");
                     balance = 0;
                     updateUI();
                 }
@@ -274,5 +282,5 @@
         updateUI();
     </script>
 </body>
-                                                                    </html>
-                  
+                </html>
+    
