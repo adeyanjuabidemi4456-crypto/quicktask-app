@@ -1,129 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickTaskPay Mini App</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --bg: #121824;
-      --card: #1e293b;
-      --accent: #3b82f6;
-      --text: #ffffff;
-      --subtext: #94a3b8;
-      --success: #22c55e;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 16px;
-    }
-    .card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 18px;
-    }
-    .balance-title {
-      font-size: 14px;
-      color: var(--subtext);
-    }
-    .balance-amount {
-      font-size: 32px;
-      font-weight: 800;
-      color: var(--success);
-      margin: 8px 0;
-    }
-    .progress-bar-bg {
-      background: #334155;
-      height: 8px;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      background: var(--accent);
-      height: 100%;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    .btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      width: 100%;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Task Pay Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #18222d;
+            --card-bg: #212d3b;
+            --text-color: #ffffff;
+            --text-secondary: #8a96a3;
+            --accent-color: #2481cc;
+            --success-color: #2ecc71;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .profile-info h2 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+        }
+
+        .profile-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .balance-title {
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 8px 0;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--success-color);
+            margin: 0 0 12px 0;
+        }
+
+        .progress-bar-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            background-color: var(--accent-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .task-details h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+        }
+
+        .task-details p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:disabled {
+            background-color: #4e5d6c;
+            color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .btn-withdraw {
+            width: 100%;
+            background-color: var(--success-color);
+            padding: 12px;
+            font-size: 15px;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <!-- Profile Card -->
+        <div class="card profile-card">
+            <div class="avatar" id="user-avatar">D</div>
+            <div class="profile-info">
+                <h2 id="user-name">User</h2>
+                <p id="user-id">ID: Loading...</p>
+            </div>
+        </div>
 
-  <!-- User Card -->
-  <div class="card">
-    <div class="user-profile">
-      <div class="avatar" id="userAvatar">U</div>
-      <div>
-        <div style="font-weight: 700;" id="userName">User</div>
-        <div style="font-size: 12px; color: var(--subtext);" id="userId">ID: 00000000</div>
-      </div>
+        <!-- Balance Card -->
+        <div class="card">
+            <p class="balance-title">Available Balance</p>
+            <div class="balance-amount" id="balance-display">₦0.00</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <p class="progress-text" id="progress-text">Payout Progress (Min: ₦5,000)</p>
+            <button class="btn btn-withdraw" id="withdraw-btn" disabled onclick="requestWithdrawal()">Request Payout</button>
+        </div>
+
+        <!-- Tasks Section -->
+        <div class="card">
+            <div class="section-title">Quick Tasks</div>
+            
+            <div class="task-item">
+                <div class="task-details">
+                    <h4>Join Updates Channel</h4>
+                    <p>+₦100</p>
+                </div>
+                <button class="btn" id="task-1" onclick="completeTask(1, 100, 'https://t.me/your_channel')">Start</button>
+            </div>
+
+            <div class="task-item">
+                <div class="task-details">
+                    <h4>Invite a Friend</h4>
+                    <p>+₦250</p>
+                </div>
+                <button class="btn" id="task-2" onclick="completeTask(2, 250, '#')">Invite</button>
+            </div>
+
+            <div class="task-item">
+                <div class="task-details">
+                    <h4>Daily Bonus Check-in</h4>
+                    <p>+₦50</p>
+                </div>
+                <button class="btn" id="task-3" onclick="completeTask(3, 50, '')">Claim</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Balance Card -->
-  <div class="card">
-    <div class="balance-title">Available Balance</div>
-    <div class="balance-amount">₦<span id="userBalance">0.00</span></div>
-    <div style="font-size: 12px; color: var(--subtext); margin-bottom: 6px;">Payout Progress (Min: ₦5,000)</div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progressBar"></div>
-    </div>
-  </div>
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
 
-  <!-- Quick Actions -->
-  <div class="card">
-    <h3 style="margin-top:0; font-size: 16px;">Quick Tasks</h3>
-    <p style="font-size: 13px; color: var(--subtext);">Complete social actions to earn instant cash.</p>
-    <button class="btn" onclick="openChannel()">📢 Join Updates Channel (+₦100)</button>
-  </div>
+        // User Data Initialization
+        let user = tg.initDataUnsafe?.user;
+        let balance = 0.00;
+        const minPayout = 5000.00;
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand(); // Open full height
+        if (user) {
+            document.getElementById('user-name').innerText = user.first_name || "User";
+            document.getElementById('user-id').innerText = "ID: " + (user.id || "8782331655");
+            document.getElementById('user-avatar').innerText = (user.first_name ? user.first_name[0].toUpperCase() : "D");
+        } else {
+            document.getElementById('user-name').innerText = "Daniel";
+            document.getElementById('user-id').innerText = "ID: 8782331655";
+        }
 
-    // Retrieve user details from Telegram WebApp SDK
-    const user = tg.initDataUnsafe?.user || { first_name: "Daniel", id: 8782331655 };
-    
-    document.getElementById("userName").innerText = user.first_name;
-    document.getElementById("userId").innerText = "ID: " + user.id;
-    document.getElementById("userAvatar").innerText = user.first_name.charAt(0);
+        function updateUI() {
+            document.getElementById('balance-display').innerText = '₦' + balance.toLocaleString('en-NG', {minimumFractionDigits: 2});
+            
+            let progressPercent = Math.min((balance / minPayout) * 100, 100);
+            document.getElementById('progress-bar').style.width = progressPercent + '%';
+            
+            let withdrawBtn = document.getElementById('withdraw-btn');
+            if (balance >= minPayout) {
+                withdrawBtn.removeAttribute('disabled');
+                document.getElementById('progress-text').innerText = 'Ready for Payout!';
+            } else {
+                withdrawBtn.setAttribute('disabled', 'true');
+                let remaining = minPayout - balance;
+                document.getElementById('progress-text').innerText = `Needs ₦${remaining.toLocaleString()} more to reach ₦5,000 min`;
+            }
+        }
 
-    function openChannel() {
-      tg.openTelegramLink("https://t.me/QuickTaskPayOfficial");
-    }
-  </script>
+        function completeTask(taskId, reward, link) {
+            if(link && link !== '#') {
+                window.open(link, '_blank');
+            }
+            
+            balance += reward;
+            
+            let btn = document.getElementById('task-' + taskId);
+            btn.innerText = 'Completed';
+            btn.setAttribute('disabled', 'true');
+            btn.style.backgroundColor = '#2ecc71';
+
+            updateUI();
+            tg.hapticFeedback.notificationOccurred('success');
+        }
+
+        function requestWithdrawal() {
+            if (balance < minPayout) return;
+            tg.showConfirm("Do you want to request your payout of ₦" + balance.toLocaleString() + " to your saved wallet?", (confirmed) => {
+                if (confirmed) {
+                    alert("Payout request submitted successfully!");
+                    balance = 0;
+                    updateUI();
+                }
+            });
+        }
+
+        updateUI();
+    </script>
 </body>
-  </html>
-  
+                                                                    </html>
+                  
