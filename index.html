@@ -410,8 +410,8 @@
             </div>
 
             <div class="action-grid">
-                <button class="btn-custom primary-neon" onclick="switchTab('earn', event)">⚡ Earn Naira</button>
-                <button class="btn-custom" onclick="requestWithdrawal()">💳 Cashout</button>
+                <button class="btn-custom primary-neon" id="goto-earn-btn">⚡ Earn Naira</button>
+                <button class="btn-custom" id="withdraw-btn">💳 Cashout</button>
             </div>
 
             <div class="metrics-grid">
@@ -438,7 +438,7 @@
                         <h4>Daily Check-in</h4>
                         <p id="checkin-sub">Claim today's bonus: +₦100</p>
                     </div>
-                    <button class="claim-btn" id="checkin-action-btn" onclick="claimDailyCheckin()">Claim</button>
+                    <button class="claim-btn" id="checkin-action-btn">Claim</button>
                 </div>
                 <div class="mini-streak-row">
                     <div class="streak-pill active"><span>D1</span><strong>100</strong></div>
@@ -461,21 +461,21 @@
                         <h4>Join Telegram Announcement</h4>
                         <p>+₦250 Naira</p>
                     </div>
-                    <button class="task-exec-btn" id="task-1-btn" onclick="completeTask(1, 250)">Start</button>
+                    <button class="task-exec-btn" id="task-1-btn">Start</button>
                 </div>
                 <div class="task-item-card">
                     <div class="task-details">
                         <h4>Invite a Peer</h4>
                         <p>+₦500 Naira</p>
                     </div>
-                    <button class="task-exec-btn" id="task-2-btn" onclick="completeTask(2, 500)">Invite</button>
+                    <button class="task-exec-btn" id="task-2-btn">Invite</button>
                 </div>
                 <div class="task-item-card">
                     <div class="task-details">
                         <h4>Review Platform Feature</h4>
                         <p>+₦150 Naira</p>
                     </div>
-                    <button class="task-exec-btn" id="task-3-btn" onclick="completeTask(3, 150)">Complete</button>
+                    <button class="task-exec-btn" id="task-3-btn">Complete</button>
                 </div>
             </div>
         </div>
@@ -491,7 +491,7 @@
             <div class="section-heading">Referral Program</div>
             <div class="account-card" style="text-align: center; padding: 20px;">
                 <p style="color: var(--text-sub); font-size: 13px; margin-bottom: 15px;">Share your link and earn ₦500 per invite!</p>
-                <button class="btn-custom primary-neon" style="width: 100%; justify-content: center;" onclick="alert('Referral link copied to clipboard!')">🔗 Copy Invite Link</button>
+                <button class="btn-custom primary-neon" style="width: 100%; justify-content: center;" id="copy-link-btn">🔗 Copy Invite Link</button>
             </div>
         </div>
 
@@ -534,23 +534,23 @@
 
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <button class="nav-button active" onclick="switchTab('home', event)">
+        <button class="nav-button active" data-tab="home">
             <span>🏠</span>
             <span>Home</span>
         </button>
-        <button class="nav-button" onclick="switchTab('earn', event)">
+        <button class="nav-button" data-tab="earn">
             <span>💼</span>
             <span>Earn</span>
         </button>
-        <button class="nav-button" onclick="switchTab('play', event)">
+        <button class="nav-button" data-tab="play">
             <span>🎮</span>
             <span>Bonus</span>
         </button>
-        <button class="nav-button" onclick="switchTab('refer', event)">
+        <button class="nav-button" data-tab="refer">
             <span>👥</span>
             <span>Invite</span>
         </button>
-        <button class="nav-button" onclick="switchTab('account', event)">
+        <button class="nav-button" data-tab="account">
             <span>⚙️</span>
             <span>Profile</span>
         </button>
@@ -586,31 +586,30 @@
             document.getElementById('acc-tasks-done').innerText = completedTasksCount;
         }
 
-        function switchTab(tabName, evt) {
+        // Tab Switching Logic
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.getAttribute('data-tab');
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+
+                document.getElementById('page-' + tabName).classList.add('active');
+                button.classList.add('active');
+            });
+        });
+
+        // Action Buttons Logic
+        document.getElementById('goto-earn-btn').addEventListener('click', () => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+            document.getElementById('page-earn').classList.add('active');
+            document.querySelector('[data-tab="earn"]').classList.add('active');
+        });
 
-            document.getElementById('page-' + tabName).classList.add('active');
-            
-            if (evt && evt.currentTarget) {
-                evt.currentTarget.classList.add('active');
+        document.getElementById('withdraw-btn').addEventListener('click', () => {
+            if (balance < minPayout) {
+                alert(`Minimum payout is ₦5,000. You need ₦${(minPayout - balance).toLocaleString()} more.`);
+                return;
             }
-        }
-
-        function claimDailyCheckin() {
-            balance += 100;
-            lifetimeEarned += 100;
-            completedTasksCount++;
-            let btn = document.getElementById('checkin-action-btn');
-            btn.innerText = 'Claimed';
-            btn.disabled = true;
-            btn.style.background = '#334155';
-            btn.style.color = '#94a3b8';
-            document.getElementById('checkin-sub').innerText = 'Checked in successfully! +₦100';
-            updateUI();
-            if (tg.hapticFeedback) tg.hapticFeedback.notificationOccurred('success');
-        }
-
-        function completeTask(taskId, reward) {
-            balance += reward;
-            li
+            if (confirm("Request withdrawal of " + '₦' + balance.toLocaleString() + "?")) {
+  
