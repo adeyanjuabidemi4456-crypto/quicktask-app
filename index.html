@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quick Task Pay</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --bg-base: #07090e;
@@ -161,7 +162,7 @@
         <!-- Header -->
         <div class="header">
             <div class="user-info">
-                <h3>Daniel</h3>
+                <h3 id="header-name">Daniel</h3>
                 <p>Quick Task Hub</p>
             </div>
             <div class="badge">Active</div>
@@ -216,9 +217,10 @@
         <div id="page-profile" class="page">
             <h3 style="font-size: 15px; margin-bottom: 12px;">Account Overview</h3>
             <div class="box" style="text-align: left;">
-                <p style="margin: 8px 0; color: var(--text-sub);">Name: <strong style="color:white;">Daniel</strong></p>
+                <p style="margin: 8px 0; color: var(--text-sub);">Name: <strong id="profile-name" style="color:white;">Daniel</strong></p>
+                <p style="margin: 8px 0; color: var(--text-sub);">Telegram ID: <strong id="profile-id" style="color:var(--neon-cyan);">8782331655</strong></p>
                 <p style="margin: 8px 0; color: var(--text-sub);">Total Lifetime Earned: <strong id="lifetime" style="color: var(--neon-cyan);">₦0.00</strong></p>
-                <p style="margin: 8px 0; color: var(--text-sub);">Platform Status: <strong style="color: var(--success-green);">Verified</strong></p>
+                <p style="margin: 8px 0; color: var(--success-green);">Platform Status: <strong>Verified Owner</strong></p>
             </div>
         </div>
     </div>
@@ -240,6 +242,18 @@
     </div>
 
     <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Connect real Telegram user info if opened inside Telegram
+        let user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+        let userName = user && user.first_name ? user.first_name : "Daniel";
+        let userId = user && user.id ? user.id : "8782331655";
+
+        document.getElementById('header-name').innerText = userName;
+        document.getElementById('profile-name').innerText = userName;
+        document.getElementById('profile-id').innerText = userId;
+
         let balance = 0;
         let lifetime = 0;
         let tasksDone = 0;
@@ -249,6 +263,9 @@
             lifetime += 100;
             tasksDone++;
             updateDisplay();
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
             alert('Success! +₦100 added.');
         }
 
@@ -264,6 +281,9 @@
             btn.style.color = '#94a3b8';
             btn.disabled = true;
             
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
             alert(`Task completed! +₦${reward} added.`);
         }
 
@@ -274,12 +294,9 @@
         }
 
         function switchTab(pageId, btnElement) {
-            // Hide all pages
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            // Show selected page
             document.getElementById('page-' + pageId).classList.add('active');
 
-            // Update nav buttons style
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
         }
