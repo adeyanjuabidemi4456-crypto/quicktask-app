@@ -2,18 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Task Pay Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quick Task Pay</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #18222d;
-            --card-bg: #212d3b;
+            --bg-color: #0b0e14;
+            --card-bg: #141b26;
+            --card-border: #1e293b;
             --text-color: #ffffff;
             --text-secondary: #8a96a3;
-            --accent-color: #2481cc;
+            --accent-purple: #8b5cf6;
+            --accent-purple-glow: rgba(139, 92, 246, 0.3);
             --success-color: #2ecc71;
-            --border-radius: 12px;
+            --nav-bg: #0f172a;
         }
 
         body {
@@ -21,7 +23,8 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 16px;
+            padding: 12px;
+            padding-bottom: 80px; /* Space for bottom nav */
         }
 
         .container {
@@ -29,184 +32,392 @@
             margin: 0 auto;
         }
 
-        .card {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 16px;
+        /* Top Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 4px 8px;
         }
 
-        .profile-card {
+        .user-profile {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .avatar {
-            width: 48px;
-            height: 48px;
-            background-color: var(--accent-color);
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .profile-info h2 {
-            margin: 0 0 4px 0;
             font-size: 18px;
+            font-weight: bold;
+            color: white;
         }
 
-        .profile-info p {
+        .user-info h3 {
+            margin: 0 0 2px 0;
+            font-size: 16px;
+        }
+
+        .user-info p {
             margin: 0;
+            font-size: 12px;
             color: var(--text-secondary);
-            font-size: 13px;
+        }
+
+        .online-badge {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--success-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .online-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(145deg, #161f30, #101722);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
 
         .balance-title {
             color: var(--text-secondary);
-            font-size: 13px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 0 0 8px 0;
+            letter-spacing: 1px;
+            margin: 0 0 6px 0;
+            font-weight: 700;
         }
 
         .balance-amount {
-            font-size: 32px;
-            font-weight: bold;
+            font-size: 36px;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+        }
+
+        .crypto-convert {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .convert-text {
             color: var(--success-color);
-            margin: 0 0 12px 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        .progress-bar-container {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            height: 8px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .progress-bar {
-            background-color: var(--accent-color);
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            font-size: 12px;
+        .earn-more-link {
             color: var(--text-secondary);
-            margin: 0;
+            text-decoration: none;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
         }
 
-        .section-title {
-            font-size: 16px;
+        .gem-icon {
+            position: absolute;
+            right: -10px;
+            bottom: -15px;
+            font-size: 90px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* Action Buttons Row */
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .main-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: white;
+            padding: 14px;
+            border-radius: 14px;
             font-weight: bold;
-            margin-bottom: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
         }
 
-        .task-item {
+        .main-btn.primary {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            border-color: #8b5cf6;
+            box-shadow: 0 4px 15px var(--accent-purple-glow);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        .stat-box svg, .stat-box span.icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+            display: block;
+            color: var(--accent-purple);
+        }
+
+        .stat-box .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .stat-box .stat-value {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        /* Daily Check-in Card */
+        .checkin-card {
+            background: linear-gradient(135deg, #2e1065, #1e1b4b);
+            border: 1px solid #7c3aed;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2);
+        }
+
+        .checkin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
-        .task-details h4 {
-            margin: 0 0 4px 0;
-            font-size: 14px;
+        .checkin-title h4 {
+            margin: 0 0 2px 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .task-details p {
+        .checkin-title p {
             margin: 0;
-            font-size: 12px;
-            color: var(--success-color);
-            font-weight: bold;
+            font-size: 11px;
+            color: #c4b5fd;
         }
 
-        .btn {
-            background-color: var(--accent-color);
-            color: white;
+        .checkin-btn {
+            background-color: white;
+            color: #1e1b4b;
             border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: bold;
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-weight: 800;
             font-size: 13px;
             cursor: pointer;
-            transition: opacity 0.2s;
         }
 
-        .btn:disabled {
-            background-color: #4e5d6c;
-            color: #95a5a6;
-            cursor: not-allowed;
+        .streak-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
         }
 
-        .btn-withdraw {
-            width: 100%;
-            background-color: var(--success-color);
-            padding: 12px;
-            font-size: 15px;
-            margin-top: 8px;
+        .streak-day {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 6px 2px;
+            text-align: center;
+        }
+
+        .streak-day.active {
+            background: #7c3aed;
+            border-color: #a78bfa;
+        }
+
+        .streak-day .d-label {
+            font-size: 9px;
+            color: #cbd5e1;
+            display: block;
+        }
+
+        .streak-day .d-val {
+            font-size: 11px;
+            font-weight: bold;
+            display: block;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--nav-bg);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: var(--accent-purple);
+        }
+
+        .nav-item svg {
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Profile Card -->
-        <div class="card profile-card">
-            <div class="avatar" id="user-avatar">D</div>
-            <div class="profile-info">
-                <h2 id="user-name">User</h2>
-                <p id="user-id">ID: Loading...</p>
+        <!-- Top Header -->
+        <div class="header">
+            <div class="user-profile">
+                <div class="avatar" id="user-avatar">D</div>
+                <div class="user-info">
+                    <h3 id="user-name">Daniel</h3>
+                    <p id="user-handle">@Daniel</p>
+                </div>
             </div>
+            <div class="online-badge">Online</div>
         </div>
 
         <!-- Balance Card -->
-        <div class="card">
-            <p class="balance-title">Available Balance</p>
+        <div class="balance-card">
+            <div class="balance-title">Your Balance</div>
             <div class="balance-amount" id="balance-display">₦0.00</div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progress-bar"></div>
+            <div class="crypto-convert">
+                <span class="convert-text" id="usdt-convert">🟢 ≈ $0.00 USDT</span>
+                <a href="#" class="earn-more-link" onclick="triggerEarnTab()">Earn more ➔</a>
             </div>
-            <p class="progress-text" id="progress-text">Payout Progress (Min: ₦5,000)</p>
-            <button class="btn btn-withdraw" id="withdraw-btn" disabled onclick="requestWithdrawal()">Request Payout</button>
+            <div class="gem-icon">💎</div>
         </div>
 
-        <!-- Tasks Section -->
-        <div class="card">
-            <div class="section-title">Quick Tasks</div>
-            
-            <div class="task-item">
-                <div class="task-details">
-                    <h4>Join Updates Channel</h4>
-                    <p>+₦100</p>
-                </div>
-                <button class="btn" id="task-1" onclick="completeTask(1, 100, 'https://t.me/your_channel')">Start</button>
-            </div>
+        <!-- Action Row -->
+        <div class="action-row">
+            <button class="main-btn primary" onclick="triggerEarnTab()">⚡ Earn</button>
+            <button class="main-btn" onclick="requestWithdrawal()" id="withdraw-btn">💳 Withdraw</button>
+        </div>
 
-            <div class="task-item">
-                <div class="task-details">
-                    <h4>Invite a Friend</h4>
-                    <p>+₦250</p>
-                </div>
-                <button class="btn" id="task-2" onclick="completeTask(2, 250, '#')">Invite</button>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="icon">📋</span>
+                <div class="stat-label">Tasks</div>
+                <div class="stat-value" id="tasks-stat">0/3</div>
             </div>
-
-            <div class="task-item">
-                <div class="task-details">
-                    <h4>Daily Bonus Check-in</h4>
-                    <p>+₦50</p>
-                </div>
-                <button class="btn" id="task-3" onclick="completeTask(3, 50, '')">Claim</button>
+            <div class="stat-box">
+                <span class="icon">🔥</span>
+                <div class="stat-label">Streak</div>
+                <div class="stat-value">1</div>
+            </div>
+            <div class="stat-box">
+                <span class="icon">👥</span>
+                <div class="stat-label">Refs</div>
+                <div class="stat-value">0</div>
             </div>
         </div>
+
+        <!-- Daily Check-in Card -->
+        <div class="checkin-card">
+            <div class="checkin-header">
+                <div class="checkin-title">
+                    <h4>🔥 Daily Check-in</h4>
+                    <p id="checkin-subtitle">Day 1 reward: +₦100</p>
+                </div>
+                <button class="checkin-btn" id="checkin-action-btn" onclick="claimDailyCheckin()">Check In</button>
+            </div>
+            <div class="streak-days">
+                <div class="streak-day active" id="day-1"><span class="d-label">D1</span><span class="d-val">100</span></div>
+                <div class="streak-day" id="day-2"><span class="d-label">D2</span><span class="d-val">150</span></div>
+                <div class="streak-day" id="day-3"><span class="d-label">D3</span><span class="d-val">200</span></div>
+                <div class="streak-day" id="day-4"><span class="d-label">D4</span><span class="d-val">300</span></div>
+                <div class="streak-day" id="day-5"><span class="d-label">D5</span><span class="d-val">400</span></div>
+                <div class="streak-day" id="day-6"><span class="d-label">D6</span><span class="d-val">500</span></div>
+                <div class="streak-day" id="day-7"><span class="d-label">D7</span><span class="d-val">1000</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('home')">
+            <span>🏠</span>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('earn')">
+            <span>📋</span>
+            <span>Earn</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('play')">
+            <span>🎮</span>
+            <span>Play</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('refer')">
+            <span>🎁</span>
+            <span>Refer</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('account')">
+            <span>👤</span>
+            <span>Account</span>
+        </button>
     </div>
 
     <script>
@@ -215,63 +426,53 @@
 
         let user = tg.initDataUnsafe?.user;
         let balance = 0.00;
+        let completedTasksCount = 0;
         const minPayout = 5000.00;
         let telegramId = user ? user.id : 8782331655;
 
         if (user) {
-            document.getElementById('user-name').innerText = user.first_name || "User";
-            document.getElementById('user-id').innerText = "ID: " + telegramId;
+            document.getElementById('user-name').innerText = user.first_name || "Daniel";
+            document.getElementById('user-handle').innerText = "@" + (user.username || user.first_name || "Daniel");
             document.getElementById('user-avatar').innerText = (user.first_name ? user.first_name[0].toUpperCase() : "D");
-        } else {
-            document.getElementById('user-name').innerText = "Daniel";
-            document.getElementById('user-id').innerText = "ID: 8782331655";
         }
 
         function updateUI() {
             document.getElementById('balance-display').innerText = '₦' + balance.toLocaleString('en-NG', {minimumFractionDigits: 2});
-            
-            let progressPercent = Math.min((balance / minPayout) * 100, 100);
-            document.getElementById('progress-bar').style.width = progressPercent + '%';
-            
-            let withdrawBtn = document.getElementById('withdraw-btn');
-            if (balance >= minPayout) {
-                withdrawBtn.removeAttribute('disabled');
-                document.getElementById('progress-text').innerText = 'Ready for Payout!';
-            } else {
-                withdrawBtn.setAttribute('disabled', 'true');
-                let remaining = minPayout - balance;
-                document.getElementById('progress-text').innerText = `Needs ₦${remaining.toLocaleString()} more to reach ₦5,000 min`;
-            }
+            let estimatedUSDT = (balance / 1000).toFixed(4); // Example exchange rate calculation
+            document.getElementById('usdt-convert').innerText = `🟢 ≈ $${estimatedUSDT} USDT`;
+            document.getElementById('tasks-stat').innerText = `${completedTasksCount}/3`;
         }
 
-        function completeTask(taskId, reward, link) {
-            if(link && link !== '#') {
-                window.open(link, '_blank');
-            }
-            
-            balance += reward;
-            
-            let btn = document.getElementById('task-' + taskId);
-            btn.innerText = 'Completed';
+        function claimDailyCheckin() {
+            balance += 100;
+            completedTasksCount++;
+            let btn = document.getElementById('checkin-action-btn');
+            btn.innerText = 'Claimed';
             btn.setAttribute('disabled', 'true');
-            btn.style.backgroundColor = '#2ecc71';
-
+            btn.style.backgroundColor = '#4e5d6c';
+            btn.style.color = '#fff';
+            document.getElementById('checkin-subtitle').innerText = 'Checked in successfully! +₦100';
             updateUI();
             tg.hapticFeedback.notificationOccurred('success');
         }
 
+        function triggerEarnTab() {
+            alert("Redirecting to active Quick Tasks list...");
+        }
+
         function requestWithdrawal() {
-            if (balance < minPayout) return;
+            if (balance < minPayout) {
+                alert(`Minimum payout is ₦5,000. You need ₦${(minPayout - balance).toLocaleString()} more.`);
+                return;
+            }
             
             tg.showConfirm("Do you want to request your payout of ₦" + balance.toLocaleString() + "?", (confirmed) => {
                 if (confirmed) {
-                    // Send data back to Telegram bot / backend
                     tg.sendData(JSON.stringify({
                         action: "withdraw",
                         amount: balance,
                         user_id: telegramId
                     }));
-                    
                     alert("Payout request successfully sent to admin!");
                     balance = 0;
                     updateUI();
@@ -279,8 +480,16 @@
             });
         }
 
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            if(tabName !== 'home') {
+                alert("Opening " + tabName.toUpperCase() + " section...");
+            }
+        }
+
         updateUI();
     </script>
 </body>
-                </html>
+    </html>
     
