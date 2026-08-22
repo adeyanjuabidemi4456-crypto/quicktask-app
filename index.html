@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickTaskPay Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: #121824;
+      --card: #1e293b;
+      --accent: #3b82f6;
+      --text: #ffffff;
+      --subtext: #94a3b8;
+      --success: #22c55e;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .balance-title {
+      font-size: 14px;
+      color: var(--subtext);
+    }
+    .balance-amount {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--success);
+      margin: 8px 0;
+    }
+    .progress-bar-bg {
+      background: #334155;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      background: var(--accent);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- User Card -->
+  <div class="card">
+    <div class="user-profile">
+      <div class="avatar" id="userAvatar">U</div>
+      <div>
+        <div style="font-weight: 700;" id="userName">User</div>
+        <div style="font-size: 12px; color: var(--subtext);" id="userId">ID: 00000000</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Balance Card -->
+  <div class="card">
+    <div class="balance-title">Available Balance</div>
+    <div class="balance-amount">₦<span id="userBalance">0.00</span></div>
+    <div style="font-size: 12px; color: var(--subtext); margin-bottom: 6px;">Payout Progress (Min: ₦5,000)</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="card">
+    <h3 style="margin-top:0; font-size: 16px;">Quick Tasks</h3>
+    <p style="font-size: 13px; color: var(--subtext);">Complete social actions to earn instant cash.</p>
+    <button class="btn" onclick="openChannel()">📢 Join Updates Channel (+₦100)</button>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Open full height
+
+    // Retrieve user details from Telegram WebApp SDK
+    const user = tg.initDataUnsafe?.user || { first_name: "Daniel", id: 8782331655 };
+    
+    document.getElementById("userName").innerText = user.first_name;
+    document.getElementById("userId").innerText = "ID: " + user.id;
+    document.getElementById("userAvatar").innerText = user.first_name.charAt(0);
+
+    function openChannel() {
+      tg.openTelegramLink("https://t.me/QuickTaskPayOfficial");
+    }
+  </script>
+</body>
+  </html>
+  
