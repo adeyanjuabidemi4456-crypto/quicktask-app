@@ -179,6 +179,7 @@
             <div class="box">
                 <p style="margin: 0; color: var(--text-sub); font-size: 12px;">AVAILABLE EARNINGS</p>
                 <h1 id="balance">₦0.00</h1>
+                <p style="font-size: 11px; color: var(--text-sub); margin: 5px 0 15px 0;">Minimum Withdrawal: ₦5,000</p>
                 <button class="btn" id="claim-btn" onclick="claimBonus()">Claim Daily Bonus (+₦100)</button>
                 <button class="btn btn-withdraw" onclick="openWithdraw()">Withdraw Funds</button>
             </div>
@@ -260,28 +261,35 @@
         document.getElementById('profile-name').innerText = userName;
         document.getElementById('profile-id').innerText = userId;
 
-        // --- AUTOMATIC USER REGISTRATION SENDER ---
+        // --- GOOGLE SCRIPT WEB APP URL ---
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzBPsfVCnLBbDqE4AkTih1y8dy2Xesfanr9j8KkYS22eONWq4KX7uxQ-Fh8fImsUzXw/exec';
 
+        // Log user registration on first open
         if (user) {
             fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: userId, name: userName })
+                body: JSON.stringify({ type: 'register', id: userId, name: userName })
             }).catch(error => console.error('Error logging user!', error));
         }
-        // ------------------------------------------
 
-        // Load saved values from local storage
-        let balance = parseFloat(localStorage.getItem('task_balance')) || 0;
-        let lifetime = parseFloat(localStorage.getItem('task_lifetime')) || 0;
-        let tasksDone = parseInt(localStorage.getItem('task_count')) || 0;
-        let hasClaimedToday = localStorage.getItem('task_claimed_' + new Date().toDateString()) === 'true';
-        let channelJoined = localStorage.getItem('task_channel_joined') === 'true';
-        let friendInvited = localStorage.getItem('task_friend_invited') === 'true';
+        // --- UNIQUE PER-USER STORAGE KEYS ---
+        let balanceKey = 'task_balance_' + userId;
+        let lifetimeKey = 'task_lifetime_' + userId;
+        let countKey = 'task_count_' + userId;
+        let claimedKey = 'task_claimed_' + userId + '_' + new Date().toDateString();
+        let channelKey = 'task_channel_joined_' + userId;
+        let friendKey = 'task_friend_invited_' + userId;
 
-        // Apply initial visual states on load
+        // Load saved values specific to this Telegram user ID
+        let balance = parseFloat(localStorage.getItem(balanceKey)) || 0;
+        let lifetime = parseFloat(localStorage.getItem(lifetimeKey)) || 0;
+        let tasksDone = parseInt(localStorage.getItem(countKey)) || 0;
+        let hasClaimedToday = localStorage.getItem(claimedKey) === 'true';
+        let channelJoined = localStorage.getItem(channelKey) === 'true';
+        let friendInvited = localStorage.getItem(friendKey) === 'true';
+
         updateDisplay();
         if (hasClaimedToday) lockButton('claim-btn', 'Claimed Today ✓');
         if (channelJoined) lockButton('t1-btn', 'Joined ✓');
@@ -298,21 +306,20 @@
             tasksDone++;
             hasClaimedToday = true;
 
-            localStorage.setItem('task_balance', balance);
-            localStorage.setItem('task_lifetime', lifetime);
-            localStorage.setItem('task_count', tasksDone);
-            localStorage.setItem('task_claimed_' + new Date().toDateString(), 'true');
+            localStorage.setItem(balanceKey, balance);
+            localStorage.setItem(lifetimeKey, lifetime);
+            localStorage.setItem(countKey, tasksDone);
+            localStorage.setItem(claimedKey, 'true');
 
             updateDisplay();
             lockButton('claim-btn', 'Claimed Today ✓');
 
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            alert('Success! +₦100 daily bonus added.');
+            alert('Success! +₦100 daily bonus added and saved permanently.');
         }
 
         function joinChannel() {
             if (channelJoined) return;
-
             window.open('https://t.me/your_channel_link', '_blank');
 
             balance += 250;
@@ -320,10 +327,10 @@
             tasksDone++;
             channelJoined = true;
 
-            localStorage.setItem('task_balance', balance);
-            localStorage.setItem('task_lifetime', lifetime);
-            localStorage.setItem('task_count', tasksDone);
-            localStorage.setItem('task_channel_joined', 'true');
+            localStorage.setItem(balanceKey, balance);
+            localStorage.setItem(lifetimeKey, lifetime);
+            localStorage.setItem(countKey, tasksDone);
+            localStorage.setItem(channelKey, 'true');
 
             updateDisplay();
             lockButton('t1-btn', 'Joined ✓');
@@ -334,8 +341,7 @@
 
         function inviteFriend() {
             if (friendInvited) return;
-
-            let inviteLink = `https://t.me/share/url?url=https://t.me/your_bot_username&text=Check%20out%20Quick%20Task%20Pay%20and%20start%20earning%20today!`;
+            let inviteLink = `https://t.me/share/url?url=https://t.me/QuickTaskPay_bot&text=Check%20out%20Quick%20Task%20Pay%20and%20start%20earning%20today!`;
             window.open(inviteLink, '_blank');
 
             balance += 500;
@@ -343,10 +349,10 @@
             tasksDone++;
             friendInvited = true;
 
-            localStorage.setItem('task_balance', balance);
-            localStorage.setItem('task_lifetime', lifetime);
-            localStorage.setItem('task_count', tasksDone);
-            localStorage.setItem('task_friend_invited', 'true');
+            localStorage.setItem(balanceKey, balance);
+            localStorage.setItem(lifetimeKey, lifetime);
+            localStorage.setItem(countKey, tasksDone);
+            localStorage.setItem(friendKey, 'true');
 
             updateDisplay();
             lockButton('t2-btn', 'Invited ✓');
@@ -356,22 +362,41 @@
         }
 
         function openWithdraw() {
-            if (balance <= 0) {
-                alert('You do not have any funds available to withdraw yet!');
+            const minWithdrawal = 5000;
+
+            // Enforce ₦5,000 minimum threshold check
+            if (balance < minWithdrawal) {
+                alert(`Withdrawal locked! The minimum withdrawal amount is ₦5,000. Your current balance is ₦${balance.toFixed(2)}. Complete more tasks to reach the threshold!`);
                 return;
             }
 
-            let accountNumber = prompt(`Your current balance is ₦${balance.toFixed(2)}.\n\nEnter your Bank Account Number or OPay Number for payout:`);
+            let currentBal = balance;
+            let accountNumber = prompt(`Your balance is ₦${currentBal.toFixed(2)}. Enter your Bank Account Number or OPay Number for payout:`);
             
             if (accountNumber && accountNumber.trim() !== "") {
                 let bankName = prompt("Enter your Bank Name (e.g., OPay, Moniepoint, Access Bank):");
                 
                 if (bankName && bankName.trim() !== "") {
-                    alert(`Withdrawal request of ₦${balance.toFixed(2)} to ${bankName} (${accountNumber}) submitted successfully! Payouts process within 24 hours.`);
+                    // Send withdrawal order to your Google Sheet backend
+                    fetch(scriptURL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'withdrawal',
+                            id: userId,
+                            name: userName,
+                            amount: currentBal,
+                            bank: bankName,
+                            account: accountNumber
+                        })
+                    }).catch(error => console.error('Error sending withdrawal:', error));
+
+                    alert(`Withdrawal request of ₦${currentBal.toFixed(2)} to ${bankName} (${accountNumber}) submitted successfully!`);
                     
-                    // Reset balance after withdrawal request
+                    // Deduct balance after successful request
                     balance = 0;
-                    localStorage.setItem('task_balance', balance);
+                    localStorage.setItem(balanceKey, balance);
                     updateDisplay();
 
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
@@ -405,5 +430,5 @@
     </script>
 
 </body>
-  </html>
-  
+    </html>
+                        
